@@ -1,11 +1,11 @@
 import * as mongoose from 'mongoose';
 
-export const AddressSchema = new mongoose.Schema({
+export const MdbAddressSchema = new mongoose.Schema({
   address: String,
   searchCount: Number,
 });
 
-export const TransactionSchema = new mongoose.Schema({
+export const MdbTransactionSchema = new mongoose.Schema({
   txHash: String,
   searchCount: Number,
 });

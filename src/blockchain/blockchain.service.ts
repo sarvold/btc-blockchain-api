@@ -4,7 +4,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Model } from 'mongoose';
 import {
     BlockchairApiResponse, BlockchairBlock,
-    BlockchairTransaction, BlockcypherAddress, BlockcypherTransaction
+    BlockchairTransaction, BlockcypherAddress, BlockcypherTransaction, BlockstreamTransaction, BlockstreamTransactionVin, BlockstreamTransactionVout
 } from 'src/model/blockchain';
 import { RedisService } from 'src/redis/redis.service';
 
@@ -14,9 +14,9 @@ export class BlockchainService {
 
   constructor(
     private readonly redisService: RedisService,
-    @InjectModel('Address')
+    @InjectModel('BtcBlockchainAddress')
     private readonly addressModel: Model<BlockcypherAddress>,
-    @InjectModel('Transaction')
+    @InjectModel('BtcBlockchainTransaction')
     private readonly transactionModel: Model<BlockcypherTransaction>,
   ) {}
 
@@ -30,10 +30,14 @@ export class BlockchainService {
    * @returns list of addresses
    */
   async getAddressesWithRecentTransactions(): Promise<string[]> {
-    const cachedAddresses = await this.redisService.get('addresses');
-
-    if (cachedAddresses) {
-      return JSON.parse(cachedAddresses);
+    try{
+      const cachedAddresses = await this.redisService.get('addresses');
+      if (cachedAddresses) {
+        // If we still have cached addresses, we return them and forget about any API call
+        return JSON.parse(cachedAddresses);
+      }
+    } catch (error) {
+      throw new InternalServerErrorException('Error while searching for cached addresses');
     }
 
     let txids: string[];
@@ -59,10 +63,12 @@ export class BlockchainService {
     }
     const addresses = new Set<string>();
 
+    // We want to get information from each of the transactions in order to get sample addresses
     for (const txid of txids) {
-      let transactionResponse: AxiosResponse<any, unknown>;
+      let transactionResponse: AxiosResponse<BlockstreamTransaction, unknown>;
       try {
-        transactionResponse = await axios.get(
+        // using an alternative API that retrieves trx inputs and outputs, which contain addresses
+        transactionResponse = await axios.get<BlockstreamTransaction>(
           `https://blockstream.info/api/tx/${txid}`,
         );
       } catch (error) {
@@ -73,13 +79,13 @@ export class BlockchainService {
       }
       const transaction = transactionResponse.data;
       try {
-        transaction.vin.forEach((input: any) => {
+        transaction.vin.forEach((input: BlockstreamTransactionVin) => {
           if (input.prevout) {
             addresses.add(input.prevout.scriptpubkey_address);
           }
         });
 
-        transaction.vout.forEach((output: any) => {
+        transaction.vout.forEach((output: BlockstreamTransactionVout) => {
           if (output.scriptpubkey_address) {
             addresses.add(output.scriptpubkey_address);
           }

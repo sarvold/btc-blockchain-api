@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as dotenv from 'dotenv';
 import { RedisModule } from 'src/redis/redis.module';
-import { AddressSchema, TransactionSchema } from 'src/schemas/btc.schema';
+import { MdbAddressSchema, MdbTransactionSchema } from 'src/schemas/btc.schema';
 import { BlockchainController } from './blockchain.controller';
 import { BlockchainService } from './blockchain.service';
 
@@ -21,8 +21,8 @@ dotenv.config(); // .env must be loaded here otherwise we don't get envs properl
       dbName: process.env.MONGODB_DATABASE,
     }),
     MongooseModule.forFeature([
-      { name: 'Address', schema: AddressSchema },
-      { name: 'Transaction', schema: TransactionSchema },
+      { name: 'BtcBlockchainAddress', schema: MdbAddressSchema },
+      { name: 'BtcBlockchainTransaction', schema: MdbTransactionSchema },
     ]),
   ],
   providers: [BlockchainService],
