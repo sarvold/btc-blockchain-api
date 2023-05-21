@@ -1,0 +1,10 @@
+### This file is meant for testing the API using the extension REST Client for Visual Studio Code
+
+### List all addresses from recent transactions
+GET http://localhost:3000/blockchain/addresses
+
+### Get info from specific address
+GET http://localhost:3000/blockchain/addresses/bc1p8pnsd4lyy08qfwqfrkegp5ue6lhmhvpu0qdz87w62jgkzpsza82qfe3l30
+
+### Get info from specific transaction
+GET http://localhost:3000/blockchain/transactions/61b48c3133314ac09cae1f22135db4efa4502b78aaa7bd1173d85fa436c27f5f
