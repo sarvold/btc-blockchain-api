@@ -24,4 +24,14 @@ export class BlockchainController {
       console.log('Calling address')
     return this.blockchainService.getAddressesWithRecentTransactions();
   }
+
+  @Get('top-addresses')
+  async getTopAddresses(): Promise<any> {
+    return this.blockchainService.getTopAddresses();
+  }
+
+  @Get('top-transactions')
+  async getTopTransactions(): Promise<any> {
+    return this.blockchainService.getTopTransactions();
+  }
 }

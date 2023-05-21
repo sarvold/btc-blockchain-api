@@ -8,3 +8,9 @@ GET http://localhost:3000/blockchain/addresses/bc1p8pnsd4lyy08qfwqfrkegp5ue6lhmh
 
 ### Get info from specific transaction
 GET http://localhost:3000/blockchain/transactions/61b48c3133314ac09cae1f22135db4efa4502b78aaa7bd1173d85fa436c27f5f
+
+### Get top-addresses
+GET http://localhost:3000/blockchain/top-addresses
+
+### Get top-transactions
+GET http://localhost:3000/blockchain/top-transactions
