@@ -146,16 +146,10 @@ export interface BlockstreamTransaction {
 export interface BlockstreamTransactionVin {
   txid: string;
   vout: number;
-  prevout: {
-    scriptpubkey: string;
-    scriptpubkey_asm: string;
-    scriptpubkey_type: string;
-    scriptpubkey_address: string;
-    value: number;
-  };
-  scriptsig: string;
-  scriptsig_asm: string;
-  witness: string[];
+  prevout?: BlockstreamTransactionVout; // only present in non-coinbase inputs
+  scriptsig?: string; // only present in non-segwit inputs
+  scriptsig_asm?: string; // only present in non-segwit inputs
+  witness?: string[]; // only used by segwit inputs
   is_coinbase: boolean;
   sequence: number;
 }

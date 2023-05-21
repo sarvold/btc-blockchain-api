@@ -3,9 +3,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import axios, { AxiosResponse } from 'axios';
 import { Model } from 'mongoose';
 import {
-    BlockchairApiResponse, BlockchairBlock,
-    BlockchairTransaction, BlockcypherAddress, BlockcypherTransaction, BlockstreamTransaction, BlockstreamTransactionVin, BlockstreamTransactionVout
+  BlockchairApiResponse,
+  BlockchairBlock,
+  BlockchairTransaction,
+  BlockcypherAddress,
+  BlockcypherTransaction,
+  BlockstreamTransaction,
+  BlockstreamTransactionVin,
+  BlockstreamTransactionVout,
 } from 'src/model/blockchain';
+import { BtcTopAddress, BtcTopClean, BtcTopTransaction } from 'src/model/top';
 import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
@@ -15,9 +22,9 @@ export class BlockchainService {
   constructor(
     private readonly redisService: RedisService,
     @InjectModel('BtcBlockchainAddress')
-    private readonly addressModel: Model<BlockcypherAddress>,
+    private readonly addressModel: Model<BtcTopAddress>,
     @InjectModel('BtcBlockchainTransaction')
-    private readonly transactionModel: Model<BlockcypherTransaction>,
+    private readonly transactionModel: Model<BtcTopTransaction>,
   ) {}
 
   /**
@@ -30,14 +37,16 @@ export class BlockchainService {
    * @returns list of addresses
    */
   async getAddressesWithRecentTransactions(): Promise<string[]> {
-    try{
+    try {
       const cachedAddresses = await this.redisService.get('addresses');
       if (cachedAddresses) {
         // If we still have cached addresses, we return them and forget about any API call
         return JSON.parse(cachedAddresses);
       }
     } catch (error) {
-      throw new InternalServerErrorException('Error while searching for cached addresses');
+      throw new InternalServerErrorException(
+        'Error while searching for cached addresses',
+      );
     }
 
     let txids: string[];
@@ -115,43 +124,92 @@ export class BlockchainService {
     }
   }
 
-
   async getAddressInfo(address: string): Promise<BlockcypherAddress> {
-    const response = await axios.get<BlockcypherAddress>(
-      `https://api.blockcypher.com/v1/btc/main/addrs/${address}`,
-    );
-    // Increment the search count for the address in MongoDB
-    await this.addressModel.findOneAndUpdate(
-      { address },
-      { $inc: { searchCount: 1 } },
-      { upsert: true },
-    );
+    let response: AxiosResponse<BlockcypherAddress, unknown>;
+    try {
+      response = await axios.get<BlockcypherAddress>(
+        `https://api.blockcypher.com/v1/btc/main/addrs/${address}`,
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error while asking blockcypher for address ${address}`,
+      );
+    }
+    try {
+      // Increment the search count for the address in MongoDB
+      await this.addressModel.findOneAndUpdate(
+        { address },
+        { $inc: { searchCount: 1 } },
+        { upsert: true },
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error while incrementing search count for address ${address}`,
+      );
+    }
     return response.data;
   }
 
   async getTransactionInfo(txHash: string): Promise<BlockcypherTransaction> {
-    const response = await axios.get<BlockcypherTransaction>(
-      `https://api.blockcypher.com/v1/btc/main/txs/${txHash}`,
-    );
-    // Increment the search count for the transaction in MongoDB
-    await this.transactionModel.findOneAndUpdate(
-      { txHash },
-      { $inc: { searchCount: 1 } },
-      { upsert: true },
-    );
+    let response: AxiosResponse<BlockcypherTransaction, unknown>;
+    try {
+      const response = await axios.get<BlockcypherTransaction>(
+        `https://api.blockcypher.com/v1/btc/main/txs/${txHash}`,
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error while asking blockcypher for transaction ${txHash}`,
+      );
+    }
+    try {
+      // Increment the search count for the transaction in MongoDB
+      await this.transactionModel.findOneAndUpdate(
+        { txHash },
+        { $inc: { searchCount: 1 } },
+        { upsert: true },
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error while incrementing search count for transaction ${txHash}`,
+      );
+    }
     return response.data;
   }
 
   // Top 5 searched
-  async getTopAddresses(): Promise<BlockcypherAddress[]> {
-    return this.addressModel.find().sort({ searchCount: -1 }).limit(5).exec();
+  async getTopAddresses(): Promise<BtcTopClean<BtcTopAddress>[]> {
+    try {
+      const mongoResponse = await this.addressModel
+        .find()
+        .sort({ searchCount: -1 })
+        .limit(5)
+        .exec();
+      const cleanAddress: BtcTopClean<BtcTopAddress>[] = mongoResponse.map(
+        ({ address, searchCount }) => {
+          return { address, searchCount };
+        },
+      );
+      return cleanAddress;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error while searching for top addresses`,
+      );
+    }
   }
 
-  async getTopTransactions(): Promise<BlockcypherTransaction[]> {
-    return this.transactionModel
-      .find()
-      .sort({ searchCount: -1 })
-      .limit(5)
-      .exec();
+  async getTopTransactions(): Promise<BtcTopClean<BtcTopTransaction>[]> {
+    try {
+      const mongoResponse = await this.transactionModel
+        .find()
+        .sort({ searchCount: -1 })
+        .limit(5)
+        .exec();
+        const cleanTrx: BtcTopClean<BtcTopTransaction>[] = mongoResponse.map(({txHash, searchCount}) => {return {txHash, searchCount}});
+        return cleanTrx;  
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error while searching for top transactions`,
+      );
+    }
   }
 }
