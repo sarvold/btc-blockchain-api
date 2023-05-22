@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as dotenv from 'dotenv';
-import { RedisModule } from 'src/redis/redis.module';
-import { MdbAddressSchema, MdbTransactionSchema } from 'src/schemas/btc.schema';
+import { MdbAddressSchema, MdbTransactionSchema } from '../schemas/btc.schema';
+import { RedisModule } from '../redis/redis.module';
 import { BlockchainController } from './blockchain.controller';
 import { BlockchainService } from './blockchain.service';
 
