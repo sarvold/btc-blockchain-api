@@ -12,8 +12,8 @@ import {
   BlockstreamTransactionVin,
   BlockstreamTransactionVout,
 } from 'src/model/blockchain';
-import { BtcTopAddress, BtcTopClean, BtcTopTransaction } from 'src/model/top';
-import { RedisService } from 'src/redis/redis.service';
+import { BtcTopAddress, BtcTopClean, BtcTopTransaction } from '../model/top';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class BlockchainService {
@@ -58,12 +58,12 @@ export class BlockchainService {
         'https://api.blockchair.com/bitcoin/blocks?s=id(desc)&limit=1', // should return the most recent block
       );
       const mostRecentBlockId = blockResponse.data[0].id;
-      const { data: transactionsResponse } = await axios.get<
+      const { data: blockTransactionsResponse } = await axios.get<
         BlockchairApiResponse<BlockchairTransaction>
       >(
         `https://api.blockchair.com/bitcoin/transactions?q=block_id(${mostRecentBlockId})`,
       );
-      txids = transactionsResponse.data.map((t) => t.hash);
+      txids = blockTransactionsResponse.data.map((t) => t.hash);
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException(
@@ -153,9 +153,10 @@ export class BlockchainService {
   async getTransactionInfo(txHash: string): Promise<BlockcypherTransaction> {
     let response: AxiosResponse<BlockcypherTransaction, unknown>;
     try {
-      const response = await axios.get<BlockcypherTransaction>(
+      response = await axios.get<BlockcypherTransaction>(
         `https://api.blockcypher.com/v1/btc/main/txs/${txHash}`,
       );
+
     } catch (error) {
       throw new InternalServerErrorException(
         `Error while asking blockcypher for transaction ${txHash}`,

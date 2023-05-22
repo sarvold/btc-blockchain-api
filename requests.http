@@ -1,4 +1,4 @@
-### This file is meant for testing the API using the extension REST Client for Visual Studio Code
+### This file is useful for testing the API using the extension REST Client for Visual Studio Code
 
 ### List all addresses from recent transactions
 GET http://localhost:3000/blockchain/addresses
