@@ -21,7 +21,6 @@ export class BlockchainController {
 
   @Get('addresses')
   async getAddresses(): Promise<string[]> {
-      console.log('Calling address')
     return this.blockchainService.getAddressesWithRecentTransactions();
   }
 

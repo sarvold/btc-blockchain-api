@@ -11,7 +11,6 @@ import {
   BlockcypherTransaction,
   BlockstreamTransaction,
 } from '../model/blockchain';
-import { RedisModule } from '../redis/redis.module';
 import { RedisService } from '../redis/redis.service';
 import { BlockchainService } from './blockchain.service';
 

@@ -25,11 +25,11 @@ describe('RedisService', () => {
     redisClientMock = module.get(Redis);
     service = module.get<RedisService>(RedisService);
   });
-  
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-  
+
   describe('set', () => {
     it('should set a value in Redis with expiration date', async () => {
       const spy = jest.spyOn(redisClientMock, 'set');

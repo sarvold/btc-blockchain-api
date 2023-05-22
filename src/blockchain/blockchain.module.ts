@@ -6,7 +6,7 @@ import { MdbAddressSchema, MdbTransactionSchema } from 'src/schemas/btc.schema';
 import { BlockchainController } from './blockchain.controller';
 import { BlockchainService } from './blockchain.service';
 
-console.log('Loading BlockchainModule...')
+console.log('Loading BlockchainModule...');
 
 dotenv.config(); // .env must be loaded here otherwise we don't get envs properly loaded
 
@@ -26,6 +26,6 @@ dotenv.config(); // .env must be loaded here otherwise we don't get envs properl
     ]),
   ],
   providers: [BlockchainService],
-  controllers: [BlockchainController]
+  controllers: [BlockchainController],
 })
 export class BlockchainModule {}

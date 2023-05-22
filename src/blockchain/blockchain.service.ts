@@ -156,7 +156,6 @@ export class BlockchainService {
       response = await axios.get<BlockcypherTransaction>(
         `https://api.blockcypher.com/v1/btc/main/txs/${txHash}`,
       );
-
     } catch (error) {
       throw new InternalServerErrorException(
         `Error while asking blockcypher for transaction ${txHash}`,
@@ -205,8 +204,12 @@ export class BlockchainService {
         .sort({ searchCount: -1 })
         .limit(5)
         .exec();
-        const cleanTrx: BtcTopClean<BtcTopTransaction>[] = mongoResponse.map(({txHash, searchCount}) => {return {txHash, searchCount}});
-        return cleanTrx;  
+      const cleanTrx: BtcTopClean<BtcTopTransaction>[] = mongoResponse.map(
+        ({ txHash, searchCount }) => {
+          return { txHash, searchCount };
+        },
+      );
+      return cleanTrx;
     } catch (error) {
       throw new InternalServerErrorException(
         `Error while searching for top transactions`,
