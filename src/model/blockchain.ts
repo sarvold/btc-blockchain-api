@@ -101,15 +101,51 @@ export interface BlockchairTransaction {
 }
 
 export interface BlockcypherTransaction {
-  tx_hash: string;
+  block_hash: string;
   block_height: number;
-  tx_input_n: number;
-  tx_output_n: number;
-  value: number;
-  ref_balance: number;
-  confirmations: number;
+  block_index: number;
+  hash: string; // is what previously was txHash
+  addresses: string[];
+  total: number;
+  fees: number;
+  size: number;
+  vsize: number;
+  preference: string;
   confirmed: string;
+  received: string;
+  ver: number;
   double_spend: boolean;
+  vin_sz: number;
+  vout_sz: number;
+  confirmations: number;
+  confidence: number;
+  inputs: {
+    prev_hash: string;
+    output_index: number;
+    output_value: number;
+    sequence: number;
+    addresses: string[];
+    script_type: string;
+    age: number;
+    witness?: string[];
+  }[];
+  outputs: {
+    value: number;
+    script: string;
+    spent_by?: string;
+    addresses?: string[];
+    script_type?: string;
+  }[];
+  // Below props were the original ones for transactions coming from blockcypher. This type has suddenly changed
+  // tx_hash: string;
+  // block_height: number;
+  // tx_input_n: number;
+  // tx_output_n: number;
+  // value: number;
+  // ref_balance: number;
+  // confirmations: number;
+  // confirmed: string;
+  // double_spend: boolean;
 }
 
 export interface BlockcypherAddress {

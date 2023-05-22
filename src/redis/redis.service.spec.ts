@@ -40,7 +40,7 @@ describe('RedisService', () => {
 
   describe('get', () => {
     it('should return null if the key does not exist', async () => {
-      const spy = jest.spyOn(redisClientMock, 'get').mockReturnValue(undefined);
+      jest.spyOn(redisClientMock, 'get').mockReturnValue(undefined);
       const value = await service.get('nonexistent-key');
       expect(value).toBeUndefined();
     });

@@ -20,12 +20,33 @@ describe('BlockchainController (e2e)', () => {
   });
 
   describe('/blockchain/addresses (GET)', () => {
-    it('should return an array of addresses', () => {
+    let addresses: string[];
+    it('should respond within 10 seconds', () => {
       return request(app.getHttpServer())
         .get('/blockchain/addresses')
         .expect(200)
         .expect((res) => {
-          expect(Array.isArray(res.body)).toBe(true);
+          addresses = res?.body;
+          expect(Array.isArray(addresses)).toBe(true);
+        });
+    }, 10000);
+    it('should respond within 20ms (due to cached the first time)', () => {
+      const start = Date.now();
+      return request(app.getHttpServer())
+        .get('/blockchain/addresses')
+        .expect(200)
+        .expect(() => {
+          const end = Date.now();
+          expect(end - start).toBeLessThan(20); // Check that the request took less than 20ms
+        });
+    });
+    it('should return same array of addresses', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/addresses')
+        .expect(200)
+        .expect((res) => {
+          expect(Array.isArray(res?.body)).toBe(true);
+          expect(res?.body).toEqual(addresses);
         });
     });
   });
@@ -39,14 +60,18 @@ describe('BlockchainController (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveProperty('address');
-          expect(res.body).toHaveProperty('balance');
           expect(res.body).toHaveProperty('total_received');
           expect(res.body).toHaveProperty('total_sent');
+          expect(res.body).toHaveProperty('balance');
           expect(res.body).toHaveProperty('unconfirmed_balance');
-          expect(res.body).toHaveProperty('unconfirmed_txrefs');
+          expect(res.body).toHaveProperty('final_balance');
+          expect(res.body).toHaveProperty('n_tx');
+          expect(res.body).toHaveProperty('unconfirmed_n_tx');
+          expect(res.body).toHaveProperty('final_n_tx');
           expect(res.body).toHaveProperty('txrefs');
+          expect(res.body).toHaveProperty('tx_url');
         });
-    });
+    }, 6000);
   });
 
   describe('/blockchain/transactions/:txHash (GET)', () => {
@@ -57,21 +82,28 @@ describe('BlockchainController (e2e)', () => {
         )
         .expect(200)
         .expect((res) => {
+          expect(res.body).toHaveProperty('block_hash');
           expect(res.body).toHaveProperty('block_height');
           expect(res.body).toHaveProperty('block_index');
           expect(res.body).toHaveProperty('hash');
-          expect(res.body).toHaveProperty('inputs');
-          expect(res.body).toHaveProperty('lock_time');
-          expect(res.body).toHaveProperty('outputs');
-          expect(res.body).toHaveProperty('relayed_by');
-          expect(res.body).toHaveProperty('result');
+          expect(res.body).toHaveProperty('addresses');
+          expect(res.body).toHaveProperty('total');
+          expect(res.body).toHaveProperty('fees');
           expect(res.body).toHaveProperty('size');
-          expect(res.body).toHaveProperty('time');
-          expect(res.body).toHaveProperty('tx_index');
+          expect(res.body).toHaveProperty('vsize');
+          expect(res.body).toHaveProperty('preference');
+          expect(res.body).toHaveProperty('confirmed');
+          expect(res.body).toHaveProperty('received');
+          expect(res.body).toHaveProperty('ver');
+          expect(res.body).toHaveProperty('double_spend');
           expect(res.body).toHaveProperty('vin_sz');
           expect(res.body).toHaveProperty('vout_sz');
+          expect(res.body).toHaveProperty('confirmations');
+          expect(res.body).toHaveProperty('confidence');
+          expect(res.body).toHaveProperty('inputs');
+          expect(res.body).toHaveProperty('outputs');
         });
-    });
+    }, 6000);
   });
 
   describe('/blockchain/top-addresses (GET)', () => {
