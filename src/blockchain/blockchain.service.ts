@@ -131,9 +131,11 @@ export class BlockchainService {
         `https://api.blockcypher.com/v1/btc/main/addrs/${address}`,
       );
     } catch (error) {
-      throw new InternalServerErrorException(
-        `Error while asking blockcypher for address ${address}`,
-      );
+      console.log('Catching the error: ', error)
+      throw error;
+      // throw new InternalServerErrorException(
+      //   `Error while asking blockcypher for address ${address}`,
+      // );
     }
     try {
       // Increment the search count for the address in MongoDB

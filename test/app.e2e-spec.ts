@@ -104,6 +104,18 @@ describe('BlockchainController (e2e)', () => {
           expect(res.body).toHaveProperty('outputs');
         });
     }, 6000);
+    it('should return 404', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/transactions/nonexistent-hash')
+        .expect(404)
+        .expect((res) => {
+          expect(res.body).toEqual({
+            error: 'Not Found',
+            message: 'Cannot GET /blockchain/transactions/nonexistent-hash',
+            statusCode: 404,
+          });
+        });
+    });
   });
 
   describe('/blockchain/top-addresses (GET)', () => {
@@ -115,6 +127,18 @@ describe('BlockchainController (e2e)', () => {
           expect(Array.isArray(res.body)).toBe(true);
         });
     });
+    it('should return 404', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/top-addresses/qwerty')
+        .expect(404)
+        .expect((res) => {
+          expect(res.body).toEqual({
+            error: 'Not Found',
+            message: 'Cannot GET /blockchain/top-addresses/qwerty',
+            statusCode: 404,
+          });
+        });
+    });
   });
 
   describe('/blockchain/top-transactions (GET)', () => {
@@ -124,6 +148,32 @@ describe('BlockchainController (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(Array.isArray(res.body)).toBe(true);
+        });
+    });
+    it('should return 404', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/top-transactions/qwerty')
+        .expect(404)
+        .expect((res) => {
+          expect(res.body).toEqual({
+            error: 'Not Found',
+            message: 'Cannot GET /blockchain/top-transactions/qwerty',
+            statusCode: 404,
+          });
+        });
+    });
+  });
+  describe('Wrong URL', () => {
+    it('should return 404', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/wrong-url')
+        .expect(404)
+        .expect((res) => {
+          expect(res.body).toEqual({
+            error: 'Not Found',
+            message: 'Cannot GET /blockchain/wrong-url',
+            statusCode: 404,
+          });
         });
     });
   });
