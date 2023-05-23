@@ -72,6 +72,30 @@ describe('BlockchainController (e2e)', () => {
           expect(res.body).toHaveProperty('tx_url');
         });
     }, 6000);
+    it('should return 400', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/addresses/1234')
+        .expect(400)
+        .expect((res) => {
+          expect(res.body).toEqual({
+            statusCode: 400,
+            message: 'Invalid address hash: 1234',
+            error: 'Bad Request',
+          });
+        });
+    });
+    it('should return 404', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/transactions//')
+        .expect(404)
+        .expect((res) => {
+          expect(res.body).toEqual({
+            statusCode: 404,
+            message: 'Cannot GET /blockchain/transactions//',
+            error: 'Not Found',
+          });
+        });
+    });
   });
 
   describe('/blockchain/transactions/:txHash (GET)', () => {
@@ -104,15 +128,27 @@ describe('BlockchainController (e2e)', () => {
           expect(res.body).toHaveProperty('outputs');
         });
     }, 6000);
+    it('should return 400', () => {
+      return request(app.getHttpServer())
+        .get('/blockchain/transactions/qwerty')
+        .expect(400)
+        .expect((res) => {
+          expect(res.body).toEqual({
+            statusCode: 400,
+            message: 'Invalid transaction hash: qwerty',
+            error: 'Bad Request',
+          });
+        });
+    });
     it('should return 404', () => {
       return request(app.getHttpServer())
-        .get('/blockchain/transactions/nonexistent-hash')
+        .get('/blockchain/addresses//')
         .expect(404)
         .expect((res) => {
           expect(res.body).toEqual({
-            error: 'Not Found',
-            message: 'Cannot GET /blockchain/transactions/nonexistent-hash',
             statusCode: 404,
+            message: 'Cannot GET /blockchain/addresses//',
+            error: 'Not Found',
           });
         });
     });

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import axios, { AxiosResponse } from 'axios';
 import { Model } from 'mongoose';
@@ -10,7 +10,7 @@ import {
   BlockcypherTransaction,
   BlockstreamTransaction,
   BlockstreamTransactionVin,
-  BlockstreamTransactionVout,
+  BlockstreamTransactionVout
 } from 'src/model/blockchain';
 import { BtcTopAddress, BtcTopClean, BtcTopTransaction } from '../model/top';
 import { RedisService } from '../redis/redis.service';
@@ -131,11 +131,12 @@ export class BlockchainService {
         `https://api.blockcypher.com/v1/btc/main/addrs/${address}`,
       );
     } catch (error) {
-      console.log('Catching the error: ', error)
-      throw error;
-      // throw new InternalServerErrorException(
-      //   `Error while asking blockcypher for address ${address}`,
-      // );
+      if (error.response && (error.response.status === 400 || error.response.status === 404)) {
+        throw new BadRequestException(`Invalid address hash: ${address}`);
+      }
+      throw new InternalServerErrorException(
+        `Error while asking blockcypher for address ${address}`,
+      );
     }
     try {
       // Increment the search count for the address in MongoDB
@@ -159,6 +160,9 @@ export class BlockchainService {
         `https://api.blockcypher.com/v1/btc/main/txs/${txHash}`,
       );
     } catch (error) {
+      if (error.response && (error.response.status === 400 || error.response.status === 404)) {
+        throw new BadRequestException(`Invalid transaction hash: ${txHash}`);
+      }
       throw new InternalServerErrorException(
         `Error while asking blockcypher for transaction ${txHash}`,
       );
