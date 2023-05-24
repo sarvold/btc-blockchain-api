@@ -30,18 +30,14 @@ describe('BlockchainService', () => {
   beforeEach(async () => {
     jest.createMockFromModule('../redis/redis.module');
     axiosMock = new MockAdapter(axios);
-    // redisServiceMock = {
-    //   get: (_: string) => Promise.resolve('Test'),
-    //   set: (_: string, __: string, ___: number) => Promise.resolve(),
-    // };
 
-    // Callback hell!
+    // Callback hell! Room for improvement here, but didn't search hard enough yet.
     fakeAddressModel = {
       findOneAndUpdate: () => {
         return {} as Query<
-          ModifyResult<any>,
-          any,
-          {},
+          ModifyResult<unknown>,
+          unknown,
+          unknown,
           BlockcypherAddress,
           'findOneAndUpdate'
         >;
@@ -67,24 +63,30 @@ describe('BlockchainService', () => {
                     ];
                   },
                 } as unknown as Query<
-                  any[],
-                  any,
-                  {},
+                  unknown[],
+                  unknown,
+                  unknown,
                   BlockcypherAddress,
                   'find'
                 >;
               },
-            } as unknown as Query<any[], any, {}, BlockcypherAddress, 'find'>;
+            } as unknown as Query<
+              unknown[],
+              unknown,
+              unknown,
+              BlockcypherAddress,
+              'find'
+            >;
           },
-        } as Query<any[], any, {}, BlockcypherAddress, 'find'>;
+        } as Query<unknown[], unknown, unknown, BlockcypherAddress, 'find'>;
       },
     };
     fakeTransactionModel = {
       findOneAndUpdate: () => {
         return {} as Query<
-          ModifyResult<any>,
-          any,
-          {},
+          ModifyResult<unknown>,
+          unknown,
+          unknown,
           BlockcypherTransaction,
           'findOneAndUpdate'
         >;
@@ -105,16 +107,22 @@ describe('BlockchainService', () => {
                     ];
                   },
                 } as unknown as Query<
-                  any[],
-                  any,
-                  {},
+                  unknown[],
+                  unknown,
+                  unknown,
                   BlockcypherAddress,
                   'find'
                 >;
               },
-            } as unknown as Query<any[], any, {}, BlockcypherAddress, 'find'>;
+            } as unknown as Query<
+              unknown[],
+              unknown,
+              unknown,
+              BlockcypherAddress,
+              'find'
+            >;
           },
-        } as Query<any[], any, {}, BlockcypherAddress, 'find'>;
+        } as Query<unknown[], unknown, unknown, BlockcypherAddress, 'find'>;
       },
     };
     // const redisClient = new Redis(); // Create a new ioredis client
@@ -251,7 +259,7 @@ describe('BlockchainService', () => {
 
   describe('getTransactionInfo', () => {
     it('should return transaction info and increment search count', async () => {
-      const transactionInfo = { tx_hash: 'tx1' } as BlockcypherTransaction;
+      const transactionInfo: Partial<BlockcypherTransaction> = { hash: 'tx1' };
       axiosMock
         .onGet()
         .replyOnce<Partial<BlockcypherTransaction>>(200, transactionInfo);
@@ -265,7 +273,7 @@ describe('BlockchainService', () => {
         'https://api.blockcypher.com/v1/btc/main/txs/tx1',
       );
       expect(fakeTransactionModel.findOneAndUpdate).toHaveBeenCalledWith(
-        { txHash: 'tx1' },
+        { hash: 'tx1' },
         { $inc: { searchCount: 1 } },
         { upsert: true },
       );
