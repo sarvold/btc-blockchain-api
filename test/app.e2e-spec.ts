@@ -3,6 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { BlockchainModule } from '../src/blockchain/blockchain.module';
 
+const ADDRESS_LIST_TIMEOUT = 10000;
+const SIMPLE_API_TIMEOUT = 6000;
+
 describe('BlockchainController (e2e)', () => {
   let app: INestApplication;
 
@@ -29,7 +32,7 @@ describe('BlockchainController (e2e)', () => {
           addresses = res?.body;
           expect(Array.isArray(addresses)).toBe(true);
         });
-    }, 10000);
+    }, ADDRESS_LIST_TIMEOUT);
     it('should respond within 20ms (due to cached the first time)', () => {
       const start = Date.now();
       return request(app.getHttpServer())
@@ -71,7 +74,7 @@ describe('BlockchainController (e2e)', () => {
           expect(res.body).toHaveProperty('txrefs');
           expect(res.body).toHaveProperty('tx_url');
         });
-    }, 6000);
+    }, SIMPLE_API_TIMEOUT);
     it('should return 400', () => {
       return request(app.getHttpServer())
         .get('/blockchain/addresses/1234')
