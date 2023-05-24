@@ -148,8 +148,21 @@ export interface BlockcypherAddress {
   n_tx: number;
   unconfirmed_n_tx: number;
   final_n_tx: number;
-  txrefs: BlockcypherTransaction[];
+  txrefs: TxRef[];
   tx_url: string;
+}
+
+interface TxRef {
+  block_height: number;
+  confirmations: number;
+  confirmed: string;
+  double_spend: boolean;
+  ref_balance: number;
+  spent: boolean;
+  tx_hash: string;
+  tx_input_n: number;
+  tx_output_n: number;
+  value: number;
 }
 
 export interface BlockstreamTransaction {
