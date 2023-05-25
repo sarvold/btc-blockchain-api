@@ -237,7 +237,7 @@ describe('BlockchainService', () => {
 
   describe('getAddressInfo', () => {
     it('should return address info and increment search count', async () => {
-      const addressInfo = { address: 'address1' } as BlockcypherAddress;
+      const addressInfo: Partial<BlockcypherAddress> = { address: 'address1' };
       axiosMock
         .onGet()
         .replyOnce<Partial<BlockcypherAddress>>(200, addressInfo);
@@ -273,7 +273,7 @@ describe('BlockchainService', () => {
         'https://api.blockcypher.com/v1/btc/main/txs/tx1',
       );
       expect(fakeTransactionModel.findOneAndUpdate).toHaveBeenCalledWith(
-        { hash: 'tx1' },
+        { txHash: 'tx1' },
         { $inc: { searchCount: 1 } },
         { upsert: true },
       );
