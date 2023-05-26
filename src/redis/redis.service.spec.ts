@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import Redis from 'ioredis';
 import * as redisMock from 'redis-mock';
-import { RootTestModule } from '../root-test.module';
 import { RedisService } from './redis.service';
 
 describe('RedisService', () => {
@@ -14,17 +13,16 @@ describe('RedisService', () => {
       get: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
-      imports: [RootTestModule],
       providers: [
         RedisService,
         {
-          provide: Redis,
+          provide: 'REDIS_CLIENT',
           useValue: redisMock.createClient(),
         },
       ],
     }).compile();
 
-    redisClientMock = module.get(Redis);
+    redisClientMock = module.get('REDIS_CLIENT');
     service = module.get<RedisService>(RedisService);
   });
 

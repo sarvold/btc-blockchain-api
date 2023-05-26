@@ -7,17 +7,6 @@ export class RedisService {
     @Inject('REDIS_CLIENT')
     private readonly client: RedisClient,
   ) {}
-  // }
-  // async onModuleInit() {
-  //   this.client = new Redis({
-  //     host: process.env.REDIS_HOST,
-  //     port: +process.env.REDIS_PORT,
-  //   });
-  // }
-
-  // async onModuleDestroy() {
-  //   await this.client.quit();
-  // }
 
   async set(key: string, value: string, expirationSeconds: number) {
     await this.client.set(key, value, 'EX', expirationSeconds);
